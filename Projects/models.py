@@ -25,3 +25,13 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Feedback(models.Model):
+    project = models.ForeignKey(Project, related_name='projectFK', on_delete=models.CASCADE)
+    feedback = models.TextField(max_length=500)
+    created_by = models.ForeignKey(User, related_name='UserFKey', on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.feedback

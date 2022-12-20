@@ -8,4 +8,5 @@ urlpatterns = [
 
 
     path('dpp_form/', dpp_form, name='dpp_form'),
+    path('feedback_form/<int:pk>/', feedback_form, name='feedback_form'),
 ]

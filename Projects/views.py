@@ -1,8 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
-from Projects.models import Project
+from Projects.models import Project, Feedback
 
 from itertools import chain
 
@@ -17,9 +17,12 @@ def show_project_list(request):
     return render(request, 'projects/show_project_list.html')
 
 
+@login_required(login_url='login_user')
 def show_project_details(request, pk):
     project_object = Project.objects.get(pk=pk)
-    context = {'project_object': project_object}
+    feedbacks = Feedback.objects.filter(project=project_object)
+    print(feedbacks)
+    context = {'project_object': project_object, 'feedbacks': feedbacks}
     return render(request, 'projects/show_project_details.html', context)
 
 
@@ -93,3 +96,21 @@ def search_project_result(request):
 
         context = {'result_list': result_list, 'csv': response}
     return render(request, 'projects/search_project_result.html', context)
+
+
+@login_required(login_url='login_user')
+def feedback_form(request, pk):
+    if request.method == "POST":
+        feedback = request.POST.get('feedback')
+        print(feedback)
+        user_id = request.user
+        project_object = Project.objects.get(pk=pk)
+        feedback_object = Feedback.objects.create(
+            feedback=feedback,
+            project=project_object,
+            created_by=user_id,
+        )
+        feedback_object.save()
+        return redirect('show_project_details', pk=pk)
+
+    return redirect('show_project_details', pk=pk)
