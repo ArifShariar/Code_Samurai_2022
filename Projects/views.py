@@ -29,8 +29,9 @@ def show_project_list(request):
 def show_project_details(request, pk):
     project_object = Project.objects.get(pk=pk)
     feedbacks = Feedback.objects.filter(project=project_object)
-    print(feedbacks)
-    context = {'project_object': project_object, 'feedbacks': feedbacks}
+    profile = Profile.objects.get(user=request.user)
+    my_feedback = Feedback.objects.filter(project=project_object, created_by=request.user)
+    context = {'project_object': project_object, 'feedbacks': feedbacks, 'profile': profile, 'my_feedback': my_feedback}
     return render(request, 'projects/show_project_details.html', context)
 
 
