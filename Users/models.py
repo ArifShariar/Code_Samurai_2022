@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 
 
-user_types = (('SYSADMIN', 'system admin'), ('ECNEC', 'Executive Committee of National Economic Council'),
+user_types = (('SYSADMIN', 'System Admin'), ('ECNEC', 'Executive Committee of National Economic Council'),
               ('MOP', 'Ministry of Planning'), ('EXEC', 'Executing Agency'), ('APP', 'Application Users'))
 
 

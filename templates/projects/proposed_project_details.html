@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Maps</title>
+
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+    <style>
+        .map-container {
+            position: relative;
+        }
+
+        body{
+            margin: auto;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 75%;
+            left: 85%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 80%;
+        }
+        .marker {
+            background-image: url('{% static 'images/location.png' %}');
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0);
+        }
+        .mapboxgl-popup {
+            max-width: 200px;
+        }
+
+        .mapboxgl-popup-content {
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .map-buttons {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .map-button {
+            display: block;
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+        .details {
+            z-index: 2;
+        }
+
+    </style>
+
+
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-dark">
+    <a class="navbar-brand text-white">BUET Hoilei Hoilo</a>
+    <form class="form-inline my-2 my-lg-0" method="post" action="{% url 'search_projects_results' %}">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="text" id="search-input" name="search-input" placeholder="Search Projects">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </form>
+    <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Log Out</a>
+</nav>
+
+<div class="card">
+    <div class="card-body">
+        <table>
+            <tr>
+                <th>Project Name: </th>
+                <td colspan="2">{{ project_object.name }}</td>
+            </tr>
+            <tr>
+                <th>Project Location: </th>
+                <td colspan="2">{{ project_object.location }}</td>
+            </tr>
+
+            <tr>
+                <th>Project Executed By: </th>
+                <td colspan="2">{{ project_object.exec_by }}</td>
+            </tr>
+
+
+            <tr>
+                <th>Project Cost: </th>
+                <td colspan="2">{{ project_object.cost }}</td>
+            </tr>
+
+            <tr>
+                <th>Project Timespan: </th>
+                <td colspan="2">{{ project_object.timespan }}</td>
+            </tr>
+
+            <tr>
+                <th>Project Goal: </th>
+                <td colspan="2">{{ project_object.goal }}</td>
+            </tr>
+
+            <tr>
+                <td>
+                    <a class="btn btn-outline-primary" href="{% url 'approve_proposed_project' project_object.id %}">Approve</a>
+                </td>
+                <td>
+                    <a class="btn btn-outline-danger" href="{% url 'reject_proposed_project' project_object.id %}">Decline</a>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</div>
+
+
+<div class="container">
+    <div id='map' style='width: 400px; height: 400px;'></div>
+</div>
+
+
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoicHAwMDYzeCIsImEiOiJjazhiNmo1ZmYwOTM5M2VwaXNtcmlidDk4In0.toBgfqf3KxIR4Ly9AmDx4Q';
+
+
+    const geojson = {
+        type: 'FeatureCollection',
+
+        features: [
+            {
+
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [{{ project_object.longitude }}, {{ project_object.latitude }}]
+                },
+                properties: {
+                    title: '{{ project_object.name }}',
+                    location: '{{ project_object.location }}',
+                    cost: '{{ project_object.cost }}',
+                    id: '{{ project_object.id }}',
+                }
+
+            },
+
+        ]
+
+    }
+
+
+
+
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [{{ project_object.longitude }}, {{ project_object.latitude }}],
+        zoom: 13
+    });
+
+    // function to invoke a pop up when a marker is clicked
+    function see_details(id) {
+        // navigate to new url
+        window.location.href = 'projects/show_project_details/' + id;
+    }
+
+    for(const feature of geojson.features){
+        const el = document.createElement('div');
+        el.className = 'marker';
+        new mapboxgl.Marker(el).
+        setLngLat(feature.geometry.coordinates)
+            .setPopup(
+                new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`<h3>${feature.properties.title}</h3>
+                    <p>${feature.properties.location}</p>`)
+            ).addTo(map);
+    }
+
+
+    console.log(geojson);
+
+</script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

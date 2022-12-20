@@ -115,3 +115,67 @@ def feedback_form(request, pk):
         return redirect('show_project_details', pk=pk)
 
     return redirect('show_project_details', pk=pk)
+
+
+@login_required(login_url='login_user')
+def view_proposed_projects(request):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP":
+        proposed_projects = Project.objects.filter(is_proposal=True, cost__lte=50)
+        print(proposed_projects)
+        context = {'proposed_projects': proposed_projects}
+        return render(request, 'projects/proposed_projects.html', context)
+    elif user.user_type == "ECNEC":
+        proposed_projects = Project.objects.filter(is_proposal=True, cost__gt=50)
+        print(proposed_projects)
+        context = {'proposed_projects': proposed_projects}
+        return render(request, 'projects/proposed_projects.html', context)
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def view_proposed_project_details(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        context = {'project_object': project_object}
+        return render(request, 'projects/proposed_project_details.html', context)
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def approve_proposed_project(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        project_object.is_proposal = False
+        project_id = project_object.project_id
+        # remove prop from first portion of project id
+        project_id = project_id[4:]
+        # add proj to first portion of project id
+        project_id = f"proj{project_id}"
+        # check if the project id already exists in Project model
+        while Project.objects.filter(project_id=project_id).exists():
+            random_n = random.randint(1000, 9999)
+            project_id = f"proj{random_n}"
+        project_object.save()
+        return redirect('view_proposed_projects')
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def reject_proposed_project(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        project_object.delete()
+        return redirect('view_proposed_projects')
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')

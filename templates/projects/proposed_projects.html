@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Proposed Projects</title>
+        <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+
+    <style>
+        #search-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+        }
+
+        #search-input {
+            padding: 10px 20px;
+            border: none;
+            font-size: 16px;
+        }
+
+        #search-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+
+<body>
+<nav class="navbar navbar-light bg-dark">
+    <a class="navbar-brand text-white">BUET Hoilei Hoilo</a>
+    <form class="form-inline my-2 my-lg-0" method="post" action="{% url 'search_projects_results' %}">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="text" id="search-input" name="search-input" placeholder="Search Projects">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </form>
+    <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Log Out</a>
+</nav>
+
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Location</th>
+        <th scope="col">Exec</th>
+        <th scope="col">Cost</th>
+        <th scope="col">Timespan</th>
+        <th scope="col">Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for res in proposed_projects %}
+    <tr>
+        <td>{{ res.name }}</td>
+        <td>{{ res.location }}</td>
+        <td>{{ res.exec_by }}</td>
+        <td>{{ res.cost }}</td>
+        <td>{{ res.timespan }}</td>
+        <td><a href="{% url 'view_proposed_projects_details' res.id %}">Details</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>
