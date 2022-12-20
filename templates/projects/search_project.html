@@ -38,9 +38,14 @@
 </head>
 <body>
 
-<nav class="navbar navbar-light bg-dark justify-content-between">
-    <a class="navbar-brand text-white">BUET Hoilei Hoilo</a>
-    <a href="{% url 'logout_user' %}">Log Out</a>
+<nav class="navbar navbar-light bg-dark">
+    <a class="navbar-brand text-white" href="{% url 'home' %}">BUET Hoilei Hoilo</a>
+    <form class="form-inline my-2 my-lg-0" method="post" action="{% url 'search_projects_results' %}">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="text" id="search-input" name="search-input" placeholder="Search Projects">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </form>
+    <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Log Out</a>
 </nav>
 
 <form method="post" action="{% url 'search_projects_results' %}">
