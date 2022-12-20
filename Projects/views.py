@@ -102,11 +102,12 @@ def search_project_result(request):
 def feedback_form(request, pk):
     if request.method == "POST":
         feedback = request.POST.get('feedback')
-        print(feedback)
+        rating = request.POST.get('rate')
         user_id = request.user
         project_object = Project.objects.get(pk=pk)
         feedback_object = Feedback.objects.create(
             feedback=feedback,
+            rating=rating,
             project=project_object,
             created_by=user_id,
         )
