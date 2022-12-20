@@ -1,6 +1,6 @@
 from django.db import models
 
-from Code_Samurai_2022 import settings
+from Users.models import User
 
 
 # Create your models here.
@@ -21,6 +21,7 @@ class Project(models.Model):
     actual_cost = models.FloatField(null=True)
     is_proposal = models.BooleanField(default=False)
     proposal_date = models.DateField(null=True)
+    created_by = models.ForeignKey(User, related_name='UserFK', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
