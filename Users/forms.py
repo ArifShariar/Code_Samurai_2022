@@ -7,12 +7,12 @@ from django import forms
 class UserForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['username'].label = "Username"
-        self.fields['first_name'].label = "First Name"
-        self.fields['last_name'].label = "Last Name"
-        self.fields['email'].label = "Email"
-        self.fields['password1'].label = "Password"
-        self.fields['password2'].label = "Confirm Password"
+        self.fields['username'].widget.attrs = {'class': 'form-control', 'placeholder': 'Username', 'required': 'true'}
+        self.fields['first_name'].widget.attrs = {'class': 'form-control', 'placeholder': 'First Name', 'required': 'true'}
+        self.fields['last_name'].widget.attrs = {'class': 'form-control', 'placeholder': 'Last Name', 'required': 'true'}
+        self.fields['email'].widget.attrs = {'class': 'form-control', 'placeholder': 'Email', 'required': 'true'}
+        self.fields['password1'].widget.attrs = {'class': 'form-control', 'placeholder': 'Password', 'required': 'true'}
+        self.fields['password2'].widget.attrs = {'class': 'form-control', 'placeholder': 'Confirm Password', 'required': 'true'}
 
     class Meta:
         model = User
@@ -22,7 +22,7 @@ class UserForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
-        self.fields['user_type'].label = "User Type"
+        self.fields['user_type'].widget.attrs = {'class': 'form-control', 'placeholder': 'User Type', 'required': 'true'}
 
     class Meta:
         model = Profile
