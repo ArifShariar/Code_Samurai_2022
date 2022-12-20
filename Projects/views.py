@@ -1,6 +1,11 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+
+from django.shortcuts import render
+from django.core.files.base import ContentFile
+
 from django.shortcuts import render, redirect
+
 
 from Projects.models import Project, Feedback
 
@@ -9,6 +14,9 @@ from itertools import chain
 # Create your views here.
 import csv
 import random
+import base64
+import json
+import datetime
 
 from Users.models import Profile
 
@@ -79,23 +87,80 @@ def search_project_result(request):
         result1 = Project.objects.filter(name__contains=search_text)
         result2 = Project.objects.filter(location__contains=search_text)
         result_list = list(chain(result1, result2))
-
-        response = HttpResponse(content_type='text/csv',
-                                headers={'Content-Disposition': 'attachment; filename="search_result.csv"'})
-
-        writer = csv.writer(response)
-        writer.writerow(['Project ID', 'Name', 'Location', 'Exec', 'Latitude', 'Longitude', 'Cost', 'Timespan', 'Goal',
-                         'Start Date', 'Completion', 'Actual Cost', 'Is Proposal', 'Proposal Date'])
+        lst_of_dick = []
+        
         for project in result_list:
-            writer.writerow([project.project_id, project.name, project.location, project.exec_by, project.latitude,
-                             project.longitude,
-                             project.cost, project.timespan, project.goal, project.start_date, project.completion,
-                             project.actual_cost, project.is_proposal, project.proposal_date])
+            lst_of_dick.append({
+                'Project ID'    : project.project_id, 
+                'Name'          : project.name, 
+                'Location'      : project.location, 
+                'Exec'          : project.exec_by, 
+                'Latitude'      : project.latitude,
+                'Longitude'     : project.longitude,
+                'Cost'          : project.cost, 
+                'Timespan'      : project.timespan, 
+                'Goal'          : project.goal, 
+                'Start Date'    : project.start_date, 
+                'Completion'    : project.completion,
+                'Actual Cost'   : project.actual_cost, 
+                'Is Proposal'   : project.is_proposal, 
+                'Proposal Date' : project.proposal_date
+            })
 
-        # convert result_list to csv file
+        context = {'result_list': result_list}
+        request.session['result_list'] = str(lst_of_dick)
+        return render(request, 'projects/search_project_result.html', context)
 
-        context = {'result_list': result_list, 'csv': response}
-    return render(request, 'projects/search_project_result.html', context)
+
+
+@login_required(login_url='login_user')
+def download(request):
+    result_project_list = request.session['result_list']
+    result_project_list = list(eval(result_project_list))
+    print(result_project_list)
+    print(type(result_project_list))
+    response = HttpResponse(
+        content_type='text/csv',
+        headers={'Content-Disposition': 'attachment; filename="somefilename.csv"'},
+    )
+    writer = csv.writer(response)
+    writer.writerow([
+        'Project ID', 
+        'Name', 
+        'Location', 
+        'Exec', 
+        'Latitude', 
+        'Longitude', 
+        'Cost', 
+        'Timespan', 
+        'Goal',
+        'Start Date', 
+        'Completion', 
+        'Actual Cost', 
+        'Is Proposal', 
+        'Proposal Date'
+    ])
+    for project in result_project_list:
+        writer.writerow([
+            project['Project ID'], 
+            project['Name'], 
+            project['Location'], 
+            project['Exec'], 
+            project['Latitude'],
+            project['Longitude'],
+            project['Cost'], 
+            project['Timespan'], 
+            project['Goal'], 
+            project['Start Date'], 
+            project['Completion'],
+            project['Actual Cost'], 
+            project['Is Proposal'], 
+            project['Proposal Date']
+        ])
+
+    del request.session['result_list']
+    return response
+
 
 
 @login_required(login_url='login_user')
@@ -179,3 +244,4 @@ def reject_proposed_project(request, pk):
     else:
         print("You are not authorized to view this page")
         return redirect('home')
+
