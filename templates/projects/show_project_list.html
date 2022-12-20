@@ -19,36 +19,64 @@
     <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Log Out</a>
 </nav>
 
+
+<h4>Project List</h4>
 <table class="table">
     <thead class="thead-dark">
     <tr>
         <th scope="col">Name</th>
-        <th scope="col">Location</th>
-        <th scope="col">Latitude</th>
-        <th scope="col">Longitude</th>
-        <th scope="col">Exec</th>
-        <th scope="col">Cost</th>
-        <th scope="col">Timespan</th>
-        <th scope="col">Project ID</th>
         <th scope="col">Goal</th>
         <th scope="col">Start Date</th>
         <th scope="col">Completion</th>
         <th scope="col">Actual Cost</th>
+        <th scope="col">Edit Project</th>
     </tr>
     </thead>
     <tbody>
+    {% for project in own_project_list %}
+        <tr>
+            <td>{{ project.name }}</td>
+            <td>{{ project.goal }}</td>
+            <td>{{ project.start_date }}</td>
+            <td>{{ project.completion }}</td>
+            <td>{{ project.actual_cost }}</td>
+            <td>
+                <form type="post" action="{% url 'edit_project_details' project.id %}">
+                    <button type="submit" class="btn btn-primary">Edit Details</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h4>Proposal List</h4>
+<table class="table">
+    <thead class="thead-dark">
     <tr>
-        <th scope="row">1</th>
-        <td>Mark</td>
-        <td>Otto</td>
-        <td>@mdo</td>
+        <th scope="col">Name</th>
+        <th scope="col">Goal</th>
+        <th scope="col">Cost</th>
+        <th scope="col">Location</th>
+        <th scope="col">Timespan</th>
+        <th scope="col">Edit Project</th>
     </tr>
-    <tr>
-        <th scope="row">2</th>
-        <td>Jacob</td>
-        <td>Thornton</td>
-        <td>@fat</td>
-    </tr>
+    </thead>
+    <tbody>
+    {% for project in own_proposal_list %}
+        <tr>
+            <td>{{ project.name }}</td>
+            <td>{{ project.goal }}</td>
+            <td>{{ project.cost }}</td>
+            <td>{{ project.location }}</td>
+            <td>{{ project.timespan }}</td>
+            <td>
+                <form type="post" action="{% url 'edit_project_details' project.id %}">
+                    <button type="submit" class="btn btn-primary">Edit Details</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
     </tbody>
 </table>
 

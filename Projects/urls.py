@@ -16,4 +16,8 @@ urlpatterns = [
          name='view_proposed_projects_details'),
     path('approve_proposed_project/<int:pk>/', approve_proposed_project, name='approve_proposed_project'),
     path('reject_proposed_project/<int:pk>/', reject_proposed_project, name='reject_proposed_project'),
+
+    path('own_projects/', own_projects, name='own_projects'),
+    path('edit_project_details/<int:pk>/', edit_project_details, name='edit_project_details'),
+    path('update_project_details/<int:pk>/', update_project_details, name='update_project_details'),
 ]
