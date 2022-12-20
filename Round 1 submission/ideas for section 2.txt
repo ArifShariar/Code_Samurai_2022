@@ -1,0 +1,15 @@
+Observe all the data from the current approved projects
+ -> check which location they occupy
+ -> check how many components they use
+ -> check how many components they are constrained to use
+ -> check clashes with other projects that are on the same location
+
+Try to connect the above informations and apply to proposals as follows: 
+ -> check the number of vacant component spots for the location
+ -> check the timespan of the projects on the location
+ -> try to determine when the location will be free
+ -> try to accomodate the components of this proposal one by one
+ -> try to determine a possible timespan of this proposal
+
+We can take the mean of datas or a majority voting or some other mechanism and check which one generates a better prediction.
+In some advanced scenarios, it is possible to apply regression models (machine learning models)
