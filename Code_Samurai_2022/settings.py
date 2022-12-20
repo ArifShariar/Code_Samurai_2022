@@ -33,6 +33,9 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'CsvParser.apps.CsvparserConfig',
     
+    'Users',
+    'Maps',
+    'Reports',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
