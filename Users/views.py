@@ -3,6 +3,7 @@ from django.contrib.auth import logout, authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 
+from Projects.models import Project
 from Users.forms import UserForm, ProfileForm
 
 
@@ -15,7 +16,9 @@ def default_home(request):
 
 @login_required(login_url='login_user')
 def home(request):
-    return render(request, 'homepage/home.html')
+    projects = Project.objects.all()
+    context = {'projects': projects}
+    return render(request, 'homepage/home.html', context)
 
 
 def register_user(request):
