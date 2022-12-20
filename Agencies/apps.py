@@ -18,13 +18,16 @@ class AgenciesConfig(AppConfig):
 
         agencies = parseCsv(AGENCIES)
         for agency in agencies:
-            agencyObject = Agencies.objects.create(
-                code = agency['code'],
-                name = agency['name'],
-                type = agency['type'],
-                description = agency['description']
-            )
-            agencyObject.save()
+            try:
+                ag = Agencies.objects.get(code=agency['code'])
+            except Agencies.DoesNotExist:
+                agencyObject = Agencies.objects.create(
+                    code = agency['code'],
+                    name = agency['name'],
+                    type = agency['type'],
+                    description = agency['description']
+                )
+                agencyObject.save()
         
         print("---------------------------------> done ...")
         return super().ready()

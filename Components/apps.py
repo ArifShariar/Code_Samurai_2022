@@ -19,14 +19,17 @@ class ComponentsConfig(AppConfig):
 
         components = parseCsv(COMPONENTS)
         for component in components:
-            componentObject = Components.objects.create(
-                component_id        = component['component_id'],
-                project_id          = component['project_id'],
-                executing_agency    = component['executing_agency'],
-                component_type      = component['component_type'],
-                depends_on          = component['depends_on'],
-                budget_ratio        = float(component['budget ratio'])
-            ).save()
+            try:
+                c = Components.objects.get(component_id=component['component_id'])
+            except Components.DoesNotExist:
+                componentObject = Components.objects.create(
+                    component_id        = component['component_id'],
+                    project_id          = component['project_id'],
+                    executing_agency    = component['executing_agency'],
+                    component_type      = component['component_type'],
+                    depends_on          = component['depends_on'],
+                    budget_ratio        = float(component['budget ratio'])
+                ).save()
 
         print("-------------------------------------->done")
         return super().ready()

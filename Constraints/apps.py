@@ -22,11 +22,17 @@ class ConstraintsConfig(AppConfig):
 
         constraints = parseCsv(CONSTRAINTS)
         for constraint in constraints:
-            Constraints.objects.create(
-                code        = constraint['code'],
-                max_limit   = int(constraint['max_limit']),
-                constraint_type = constraint['constraint_type']
-            ).save()
+            code        = constraint['code']
+            max_limit   = int(constraint['max_limit'])
+            constraint_type = constraint['constraint_type']
+            try:
+                c = Constraints.objects.get(code=code, max_limit=max_limit, constraint_type=constraint_type)
+            except Constraints.DoesNotExist:
+                Constraints.objects.create(
+                    code        = code,
+                    max_limit   = max_limit,
+                    constraint_type = constraint_type
+                ).save()
 
         print("----------------------------------> done")
         return super().ready()
