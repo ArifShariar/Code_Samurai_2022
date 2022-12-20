@@ -1,13 +1,67 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Search Project Result</title>
+    <title>Show Project List</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
 </head>
 <body>
-<h1> Results </h1>
-{% for res in result_list %}
-    <p> {{  res.name }}</p>
-{% endfor %}
+
+<nav class="navbar navbar-light bg-dark justify-content-between">
+    <a class="navbar-brand text-white">BUET Hoilei Hoilo</a>
+    <a href="">Log Out</a>
+</nav>
+
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Location</th>
+        <th scope="col">Exec</th>
+        <th scope="col">Cost</th>
+        <th scope="col">Timespan</th>
+        <th scope="col">Project ID</th>
+        <th scope="col">Goal</th>
+        <th scope="col">Start Date</th>
+        <th scope="col">Completion</th>
+        <th scope="col">Actual Cost</th>
+        <th scope="col">See Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for res in result_list %}
+    <tr>
+        <td>{{ res.name }}</td>
+        <td>{{ res.location }}</td>
+        <td>{{ res.exec_by }}</td>
+        <td>{{ res.cost }}</td>
+        <td>{{ res.timespan }}</td>
+        <td>{{ res.project_id }}</td>
+        <td>{{ res.goal }}</td>
+        <td>{{ res.start_date }}</td>
+        <td>{{ res.completion }}</td>
+        <td>{{ res.actual_cost }}</td>
+        <td><button type="button" class="btn btn-success" onclick="see_details({{ res.id }})">Details</button></td>
+
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h3>Download <a href="{{ csv }}" download="{{ csv }}">CSV</a> </h3>
+
+<script>
+    function see_details(id){
+        window.alert(id);
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </body>
+
+
 </html>

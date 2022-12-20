@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render
 
 from Projects.models import Project
@@ -6,6 +7,7 @@ from Projects.models import Project
 from itertools import chain
 
 # Create your views here.
+import csv
 
 
 def show_project_list(request):
@@ -23,7 +25,7 @@ def search_projects(request):
     return render(request, 'projects/search_project.html')
 
 
-@ login_required(login_url='login_user')
+@login_required(login_url='login_user')
 def search_project_result(request):
     context = dict()
     if request.method == "POST":
@@ -31,5 +33,20 @@ def search_project_result(request):
         result1 = Project.objects.filter(name__contains=search_text)
         result2 = Project.objects.filter(location__contains=search_text)
         result_list = list(chain(result1, result2))
-        context = {'result_list': result_list}
+
+        response = HttpResponse(content_type='text/csv',
+                                headers={'Content-Disposition': 'attachment; filename="search_result.csv"'})
+
+        writer = csv.writer(response)
+        writer.writerow(['Project ID', 'Name', 'Location', 'Exec', 'Latitude', 'Longitude', 'Cost', 'Timespan', 'Goal',
+                         'Start Date', 'Completion', 'Actual Cost', 'Is Proposal', 'Proposal Date'])
+        for project in result_list:
+            writer.writerow([project.project_id, project.name, project.location, project.exec_by, project.latitude,
+                             project.longitude,
+                             project.cost, project.timespan, project.goal, project.start_date, project.completion,
+                             project.actual_cost, project.is_proposal, project.proposal_date])
+
+        # convert result_list to csv file
+
+        context = {'result_list': result_list, 'csv': response}
     return render(request, 'projects/search_project_result.html', context)

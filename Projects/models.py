@@ -22,6 +22,5 @@ class Project(models.Model):
     is_proposal = models.BooleanField(default=False)
     proposal_date = models.DateField(null=True)
 
-
     def __str__(self):
         return self.name

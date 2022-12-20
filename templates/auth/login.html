@@ -7,32 +7,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>login</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/Footer-Dark.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/Registration-Form-with-Photo.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+    <style>
+        .sign-up{
+            background-color: #ffffff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
-    <section class="register-photo">
-        <div class="form-container">
-            <form method="post">
-                {% csrf_token %}
-                <h2 class="text-center"><strong>Log In</strong></h2>
-                <div class="form-group"><input class="form-control" type="text" name="username" placeholder="User Name" required></div>
-                <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Password" required></div>
+<section class="register-photo">
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            <h2 class="text-center"><strong>Log In</strong></h2>
+            <div class="form-group"><input class="form-control" type="text" name="username" placeholder="User Name" required></div>
+            <div class="form-group"><input class="form-control" type="password" name="password" placeholder="Password" required></div>
 
-                <div class="form-group"><button type="submit" class="btn btn-primary btn-block" name="Log In">Log In</button></div>
-            </form>
-             <a class="already" href="{% url 'register_user' %}">Don't Have an Account? Sign Up!</a>
-        </div>
-    </section>
-    <div>
-        {% if messages %}
-            <div class="alert-danger">
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </div>
-        {% endif %}
+            <div class="form-group"><button type="submit" class="btn btn-primary btn-block" name="Log In">Log In</button></div>
+        </form>
     </div>
+</section>
+
+
+<div class="sign-up">
+    <a class="already" href="{% url 'register_user' %}">Don't Have an Account? Sign Up!</a>
+</div>
+
+<div>
+    {% if messages %}
+        <div class="alert-danger">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
 </body>
 
 </html>

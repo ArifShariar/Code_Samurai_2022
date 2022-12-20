@@ -1,10 +1,146 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Home Page</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <style>
+        .map-container {
+            position: relative;
+        }
+
+        body{
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+        }
+        .marker {
+            background-image: url('{% static 'images/location_on_FILL0_wght400_GRAD0_opsz48.png' %}');
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
+        }
+        .mapboxgl-popup {
+            max-width: 400px;
+        }
+
+        .mapboxgl-popup-content {
+            text-align: center;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .map-buttons {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .map-button {
+            display: block;
+            padding: 10px 20px;
+            border: none;
+            background-color: #333;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+
 </head>
 <body>
-<a href="{% url 'logout_user' %}">Log Out</a>
+
+<nav class="navbar navbar-light bg-dark justify-content-between">
+    <a class="navbar-brand text-white">BUET Hoilei Hoilo</a>
+    <a href="{% url 'logout_user' %}">Log Out</a>
+</nav>
+
+
+<div id='map' style='width: 800px; height: 800px;'></div>
+
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoicHAwMDYzeCIsImEiOiJjazhiNmo1ZmYwOTM5M2VwaXNtcmlidDk4In0.toBgfqf3KxIR4Ly9AmDx4Q';
+
+
+    const geojson = {
+        type: 'FeatureCollection',
+
+        features: [
+            {% for place in projects %}
+                {
+
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [{{ place.longitude }}, {{ place.latitude }}]
+                    },
+                    properties: {
+                        title: '{{ place.name }}',
+                        location: '{{ place.location }}',
+                        cost: '{{ place.cost }}',
+                        id: '{{ place.id }}',
+                    }
+
+                },
+            {% endfor %}
+        ]
+
+    }
+
+
+
+
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: [90.384428,  23.727095],
+        zoom: 13
+    });
+
+    // function to invoke a pop up when a marker is clicked
+    function see_details(id) {
+        // navigate to new url
+        window.location.href = 'projects/show_project_details/' + id;
+    }
+
+    for(const feature of geojson.features){
+        const el = document.createElement('div');
+        el.className = 'marker';
+        new mapboxgl.Marker(el).
+        setLngLat(feature.geometry.coordinates)
+            .setPopup(
+                new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`<h3>${feature.properties.title}</h3>
+                    <p>${feature.properties.location}</p>
+                    <button onclick="see_details(${feature.properties.id})">See Details</button>`)
+            ).addTo(map);
+    }
+
+
+    console.log(geojson);
+
+
+</script>
+
+
 </body>
 </html>
