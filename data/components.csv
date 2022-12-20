@@ -1,4 +1,4 @@
-project_id,ececuting_agency,component_id,component_type,depends_on,budget ratio
+project_id,executing_agency,component_id,component_type,depends_on,budget ratio
 proj9280,MOEDU,comp1459,goods,,0.4
 proj9280,MOEDU,comp3869,works,,0.6
 proj9681,LGD,comp4745,goods,,0.3
