@@ -1,9 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+
 from django.shortcuts import render
 from django.core.files.base import ContentFile
 
-from Projects.models import Project
+from django.shortcuts import render, redirect
+
+
+from Projects.models import Project, Feedback
 
 from itertools import chain
 
@@ -21,9 +25,12 @@ def show_project_list(request):
     return render(request, 'projects/show_project_list.html')
 
 
+@login_required(login_url='login_user')
 def show_project_details(request, pk):
     project_object = Project.objects.get(pk=pk)
-    context = {'project_object': project_object}
+    feedbacks = Feedback.objects.filter(project=project_object)
+    print(feedbacks)
+    context = {'project_object': project_object, 'feedbacks': feedbacks}
     return render(request, 'projects/show_project_details.html', context)
 
 
@@ -105,6 +112,7 @@ def search_project_result(request):
         return render(request, 'projects/search_project_result.html', context)
 
 
+
 @login_required(login_url='login_user')
 def download(request):
     result_project_list = request.session['result_list']
@@ -152,3 +160,88 @@ def download(request):
 
     del request.session['result_list']
     return response
+
+
+
+@login_required(login_url='login_user')
+def feedback_form(request, pk):
+    if request.method == "POST":
+        feedback = request.POST.get('feedback')
+        rating = request.POST.get('rate')
+        user_id = request.user
+        project_object = Project.objects.get(pk=pk)
+        feedback_object = Feedback.objects.create(
+            feedback=feedback,
+            rating=rating,
+            project=project_object,
+            created_by=user_id,
+        )
+        feedback_object.save()
+        return redirect('show_project_details', pk=pk)
+
+    return redirect('show_project_details', pk=pk)
+
+
+@login_required(login_url='login_user')
+def view_proposed_projects(request):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP":
+        proposed_projects = Project.objects.filter(is_proposal=True, cost__lte=50)
+        print(proposed_projects)
+        context = {'proposed_projects': proposed_projects}
+        return render(request, 'projects/proposed_projects.html', context)
+    elif user.user_type == "ECNEC":
+        proposed_projects = Project.objects.filter(is_proposal=True, cost__gt=50)
+        print(proposed_projects)
+        context = {'proposed_projects': proposed_projects}
+        return render(request, 'projects/proposed_projects.html', context)
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def view_proposed_project_details(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        context = {'project_object': project_object}
+        return render(request, 'projects/proposed_project_details.html', context)
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def approve_proposed_project(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        project_object.is_proposal = False
+        project_id = project_object.project_id
+        # remove prop from first portion of project id
+        project_id = project_id[4:]
+        # add proj to first portion of project id
+        project_id = f"proj{project_id}"
+        # check if the project id already exists in Project model
+        while Project.objects.filter(project_id=project_id).exists():
+            random_n = random.randint(1000, 9999)
+            project_id = f"proj{random_n}"
+        project_object.save()
+        return redirect('view_proposed_projects')
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def reject_proposed_project(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        project_object.delete()
+        return redirect('view_proposed_projects')
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+

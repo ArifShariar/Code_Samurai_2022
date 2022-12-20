@@ -1,7 +1,7 @@
 from django.db import models
 
 from Users.models import User
-
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 # Create your models here.
 
@@ -25,3 +25,14 @@ class Project(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Feedback(models.Model):
+    project = models.ForeignKey(Project, related_name='projectFK', on_delete=models.CASCADE)
+    rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)], default=1)
+    feedback = models.TextField(max_length=500)
+    created_by = models.ForeignKey(User, related_name='UserFKey', on_delete=models.CASCADE, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.feedback
