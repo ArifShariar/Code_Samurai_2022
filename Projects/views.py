@@ -26,6 +26,15 @@ def search_projects(request):
 
 
 @login_required(login_url='login_user')
+def dpp_form(request):
+    if request.method == "POST":
+        project_name = request.POST.get('name')
+        print(project_name)
+        return HttpResponse("OK")
+    return render(request, 'projects/dpp_form.html')
+
+
+@login_required(login_url='login_user')
 def search_project_result(request):
     context = dict()
     if request.method == "POST":

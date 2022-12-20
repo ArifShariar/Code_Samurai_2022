@@ -5,4 +5,7 @@ urlpatterns = [
     path('show_project_details/<int:pk>/', show_project_details, name='show_project_details'),
     path('search_projects/', search_projects, name='search_projects'),
     path('search_projects_results/', search_project_result, name='search_projects_results'),
+
+
+    path('dpp_form/', dpp_form, name='dpp_form'),
 ]
