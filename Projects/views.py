@@ -8,6 +8,9 @@ from itertools import chain
 
 # Create your views here.
 import csv
+import random
+
+from Users.models import Profile
 
 
 def show_project_list(request):
@@ -29,7 +32,38 @@ def search_projects(request):
 def dpp_form(request):
     if request.method == "POST":
         project_name = request.POST.get('name')
-        print(project_name)
+        location = request.POST.get('location')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        cost = request.POST.get('cost')
+        timespan = request.POST.get('timespan')
+        goal = request.POST.get('goal')
+
+        # get a 4 digit random number
+        random_n = random.randint(1000, 9999)
+        project_id = f"prop{random_n}"
+
+        # check if the project id already exists in Project model
+        while Project.objects.filter(project_id=project_id).exists():
+            random_n = random.randint(1000, 9999)
+            project_id = f"prop{random_n}"
+        user_profile = Profile.objects.get(user=request.user)
+        # create a new project object
+        project_object = Project.objects.create(
+            project_id=project_id,
+            exec_by=user_profile.user_type,
+            name=project_name,
+            location=location,
+            latitude=latitude,
+            longitude=longitude,
+            cost=cost,
+            timespan=timespan,
+            goal=goal,
+            is_proposal=True,
+            created_by=request.user,
+        )
+        project_object.save()
+
         return HttpResponse("OK")
     return render(request, 'projects/dpp_form.html')
 
