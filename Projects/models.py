@@ -16,9 +16,9 @@ class Project(models.Model):
     cost = models.FloatField()
     timespan = models.IntegerField()
     goal = models.TextField(max_length=255, null=True)
-    start_date = models.DateField()
-    completion = models.FloatField()
-    actual_cost = models.FloatField()
+    start_date = models.DateField(null=True)
+    completion = models.FloatField(null=True)
+    actual_cost = models.FloatField(null=True)
     is_proposal = models.BooleanField(default=False)
     proposal_date = models.DateField(null=True)
 

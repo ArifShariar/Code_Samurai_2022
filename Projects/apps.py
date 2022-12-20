@@ -2,7 +2,7 @@ from django.apps import AppConfig
 from django.utils.dateparse import parse_date
 from django.db import connection
 
-from CsvParser.utils import parseCsv, PROJECTS
+from CsvParser.utils import parseCsv, PROJECTS, PROPOSALS
 
 
 class ProjectsConfig(AppConfig):
@@ -12,31 +12,51 @@ class ProjectsConfig(AppConfig):
     def ready(self) -> None:
         from .models import Project
         
+        print("------------------------------------------------>Project loading")
+
         all_tables = connection.introspection.table_names()
-        print(all_tables)
         if 'Projects_project' not in all_tables:
-            print('------------------->no tables found. Returning from ready()')
+            print("------------------------------------------------>Project loading")
             return
 
-        print("------------------------------------------------>Project loading")
+        
         projects = parseCsv(PROJECTS)
         for project in projects:
-            projectObject = Project.objects.create(
-                project_id=project['project_id'],
-                exec_by=project['exec'],
-                name=project['name'],
-                location=project['location'],
-                latitude=project['latitude'],
-                longitude=project['longitude'],
-                cost=project['cost'],
-                timespan=project['timespan'],
-                goal=project['goal'],
-                start_date=parse_date(project['start_date']),
-                completion=project['completion'],
-                actual_cost=project['actual_cost'],
-                is_proposal=False,
-                proposal_date=None
-            )
-            projectObject.save()            
+            Project.objects.create(
+                project_id  =   project['project_id'],
+                exec_by     =   project['exec'],
+                name        =   project['name'],
+                location    =   project['location'],
+                latitude    =   project['latitude'],
+                longitude   =   project['longitude'],
+                cost        =   project['cost'],
+                timespan    =   project['timespan'],
+                goal        =   project['goal'],
+                start_date  =   parse_date(project['start_date']),
+                completion  =   project['completion'],
+                actual_cost =   project['actual_cost'],
+                is_proposal =   False,
+                proposal_date=  None
+            ).save()
 
+        proposals = parseCsv(PROPOSALS)
+        for proposal in proposals:
+            Project.objects.create(
+                project_id  =   proposal['project_id'],
+                exec_by     =   proposal['exec'],
+                name        =   proposal['name'],
+                location    =   proposal['location'],
+                latitude    =   proposal['latitude'],
+                longitude   =   proposal['longitude'],
+                cost        =   proposal['cost'],
+                timespan    =   proposal['timespan'],
+                goal        =   proposal['goal'],
+                start_date  =   None,
+                completion  =   None,
+                actual_cost =   None,
+                is_proposal =   True,
+                proposal_date=  proposal['proposal_date']
+            ).save()
+
+        print("------------------------------------------------>Project done")
         return super().ready()
