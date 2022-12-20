@@ -1,15 +1,20 @@
 from django.db import models
 
-# Create your models here.
+
+CONSTRAINT_TYPES = (
+    ('executing_agency_limit', 'executive agency limit'), 
+    ('location_limit', 'location limit'), 
+    ('yearly_funding', 'yearly funding')
+)
 
 
 class Constraints(models.Model):
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    max_projects = models.IntegerField()
+    code = models.CharField(max_length=20)
+    max_limit = models.IntegerField()
+    constraint_type = models.CharField(max_length=50, choices=CONSTRAINT_TYPES, null=False, blank=False)
 
     def __str__(self):
-        return str(self.latitude) + "-" + str(self.longitude) + "-" + str(self.max_projects)
+        return str(self.code) + "-" + str(self.max_limit) + "-" + str(self.constraint_type)
 
     class Meta:
         verbose_name_plural = "Constraints"
