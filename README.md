@@ -1,5 +1,22 @@
 # Repository for Code Samurai 2022 Hackathon
 
+# Loading into database when server starts
+```python
+from django.db import connection
+
+class MyAppConfig(AppConfig):
+    default_auto_field = '...'
+    name = 'MyApp'
+
+    def ready(self) -> None:
+        from .models import MyApp
+
+        all_tables = connection.introspection.table_names()
+        if 'MyApp_myApp' not in all_tables:
+            return
+        # code here
+```
+
 # List of csv files
 - agencies
     - code
