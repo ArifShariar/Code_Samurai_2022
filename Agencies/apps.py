@@ -17,7 +17,6 @@ class AgenciesConfig(AppConfig):
             return
 
         agencies = parseCsv(AGENCIES)
-        print(agencies)
         for agency in agencies:
             agencyObject = Agencies.objects.create(
                 code = agency['code'],
@@ -25,7 +24,6 @@ class AgenciesConfig(AppConfig):
                 type = agency['type'],
                 description = agency['description']
             )
-            print(agencyObject)
             agencyObject.save()
         
         print("---------------------------------> done ...")
