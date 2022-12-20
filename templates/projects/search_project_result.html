@@ -11,7 +11,7 @@
 
 <nav class="navbar navbar-light bg-dark justify-content-between">
     <a class="navbar-brand text-white">BUET Hoilei Hoilo</a>
-    <a href="">Log Out</a>
+    <a href="{% url 'logout_user' %}">Log Out</a>
 </nav>
 
 <table class="table">
@@ -43,7 +43,11 @@
         <td>{{ res.start_date }}</td>
         <td>{{ res.completion }}</td>
         <td>{{ res.actual_cost }}</td>
-        <td><button type="button" class="btn btn-success" onclick="see_details({{ res.id }})">Details</button></td>
+        <td>
+            <form type="post" action="{% url 'show_project_details' res.id %}">
+                <button type="submit" class="btn btn-primary">See Details</button>
+            </form>
+        </td>
 
     </tr>
     {% endfor %}
@@ -54,7 +58,7 @@
 
 <script>
     function see_details(id){
-        window.alert(id);
+        window.location.href = "projects/show_project_details/" + id;
     }
 </script>
 
