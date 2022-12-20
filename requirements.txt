@@ -1,5 +1,5 @@
 asgiref==3.5.2
-backports.zoneinfo==0.2.1
+backports.zoneinfo;python_version<"3.9"
 Django==4.1.4
 numpy==1.24.0
 pandas==1.5.2
