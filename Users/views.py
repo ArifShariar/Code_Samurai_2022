@@ -53,9 +53,10 @@ def register_user(request):
                 user.save()
                 profile = profile_form.save(commit=False)
                 profile.user = user
+                profile.is_verified = True
                 profile.save()
-                messages.success(request, 'Account created successfully')
-                return redirect('login_user')
+                login(request, user)
+                return redirect('home')
 
             user = user_form.save()
             profile = profile_form.save(commit=False)
@@ -74,9 +75,16 @@ def login_user(request):
         password = request.POST.get('password')
 
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
+
             profile_user = Profile.objects.get(user_id=user.id)
-            if profile_user.is_verified:
+
+            if profile_user.user_type == 'SYSADMIN':
+                login(request, user)
+                return redirect('home')
+
+            elif profile_user.is_verified:
                 login(request, user)
                 return redirect('home')
             else:

@@ -82,6 +82,10 @@
         <a class="text-white" href="{% url 'view_proposed_projects' %}">Proposed Projects</a>
     {% endif %}
 
+    {%  if profile.user_type == "SYSADMIN" %}
+        <a class="text-white" href="{% url 'unverified_user' %}"> Unverified User </a>
+    {% endif %}
+
 
     <form class="form-inline" method="post" action="{% url 'search_projects_results' %}">
         {% csrf_token %}
@@ -146,14 +150,14 @@
             .setLngLat(feature.geometry.coordinates)
             .setPopup(
                 new mapboxgl
-                        .Popup({ offset: 25 })
-                        .setHTML(
-                            `
+                    .Popup({ offset: 25 })
+                    .setHTML(
+                        `
                             <h3>${feature.properties.title}</h3>
                             <p>${feature.properties.location}</p>
                             <button onclick="see_details(${feature.properties.id})">See Details</button>
                             `
-                        )
+                    )
             )
             .addTo(map);
     }
