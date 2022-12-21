@@ -5,19 +5,24 @@ from django.shortcuts import render, redirect
 
 from Projects.models import Project
 from Users.forms import UserForm, ProfileForm
+from Users.models import Profile
 
 
 # Create your views here.
 
 
 def default_home(request):
-    return render(request, 'homepage/default_home.html')
+    projects = Project.objects.all()
+    context = {'projects': projects}
+    return render(request, 'homepage/default_home.html', context)
 
 
 @login_required(login_url='login_user')
 def home(request):
+    user_id = request.user.id
+    user_profile = Profile.objects.get(user_id=user_id)
     projects = Project.objects.all()
-    context = {'projects': projects}
+    context = {'projects': projects, 'profile': user_profile}
     return render(request, 'homepage/home.html', context)
 
 
