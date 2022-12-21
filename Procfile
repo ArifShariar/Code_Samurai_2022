@@ -1,0 +1,1 @@
+web: gunicorn Code_Samurai_2022.wsgi --log-file -

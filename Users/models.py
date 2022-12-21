@@ -11,6 +11,7 @@ user_types = (('SYSADMIN', 'System Admin'), ('ECNEC', 'Executive Committee of Na
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_type = models.CharField(max_length=50, choices=user_types, null=True, blank=True)
+    is_verified = models.BooleanField(default=False, null=True)
 
     def __str__(self):
         return f'Profile for user {self.user.username}'
