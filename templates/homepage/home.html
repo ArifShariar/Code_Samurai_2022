@@ -68,6 +68,7 @@
 
 <nav class="navbar navbar-light bg-dark">
     <a class="navbar-brand text-white" href="{% url 'home' %}">BUET Hoilei Hoilo</a>
+
     {% if profile.user_type != "APP" %}
         <a class="text-white" href="{% url 'sorted_list' %}">Sort By Rating</a>
     {% endif %}

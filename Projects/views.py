@@ -32,6 +32,8 @@ def search_projects(request):
 
 @login_required(login_url='login_user')
 def dpp_form(request):
+    profile_object = Profile.objects.get(user=request.user)
+    context = {'profile': profile_object}
     if request.method == "POST":
         project_name = request.POST.get('name')
         location = request.POST.get('location')
@@ -67,7 +69,7 @@ def dpp_form(request):
         project_object.save()
 
         return HttpResponse("OK")
-    return render(request, 'projects/dpp_form.html')
+    return render(request, 'projects/dpp_form.html', context)
 
 
 @login_required(login_url='login_user')
@@ -100,6 +102,8 @@ def search_project_result(request):
 
         context = {'result_list': result_list}
         request.session['result_list'] = str(lst_of_dick)
+        profile_object = Profile.objects.get(user=request.user)
+        context['profile'] = profile_object
         return render(request, 'projects/search_project_result.html', context)
 
 
@@ -177,12 +181,12 @@ def view_proposed_projects(request):
     if user.user_type == "MOP":
         proposed_projects = Project.objects.filter(is_proposal=True, cost__lte=50)
         print(proposed_projects)
-        context = {'proposed_projects': proposed_projects}
+        context = {'proposed_projects': proposed_projects, 'profile': user}
         return render(request, 'projects/proposed_projects.html', context)
     elif user.user_type == "ECNEC":
         proposed_projects = Project.objects.filter(is_proposal=True, cost__gt=50)
         print(proposed_projects)
-        context = {'proposed_projects': proposed_projects}
+        context = {'proposed_projects': proposed_projects, 'profile': user}
         return render(request, 'projects/proposed_projects.html', context)
     else:
         print("You are not authorized to view this page")
@@ -194,7 +198,7 @@ def view_proposed_project_details(request, pk):
     user = Profile.objects.get(user=request.user)
     if user.user_type == "MOP" or user.user_type == "ECNEC":
         project_object = Project.objects.get(pk=pk)
-        context = {'project_object': project_object}
+        context = {'project_object': project_object, 'profile': user}
         return render(request, 'projects/proposed_project_details.html', context)
     else:
         print("You are not authorized to view this page")
@@ -243,7 +247,7 @@ def own_projects(request):
         own_project_list = Project.objects.filter(created_by=request.user, is_proposal=False)
         print(own_proposal_list)
         print(own_project_list)
-        context = {'own_project_list': own_project_list, 'own_proposal_list': own_proposal_list}
+        context = {'own_project_list': own_project_list, 'own_proposal_list': own_proposal_list, 'profile': user}
         return render(request, 'projects/show_project_list.html', context)
     else:
         print("You are not authorized to view this page")
@@ -255,7 +259,7 @@ def edit_project_details(request, pk):
     user = Profile.objects.get(user=request.user)
     if user.user_type == "MOP" or user.user_type == "ECNEC":
         project_object = Project.objects.get(pk=pk)
-        return render(request, 'projects/edit_project_details.html', {'project_object': project_object})
+        return render(request, 'projects/edit_project_details.html', {'project_object': project_object, 'profile': user})
 
     else:
         print("You are not authorized to view this page")
@@ -308,7 +312,7 @@ def sort_by_rating(request):
         for feedback in feedback_list:
             res_list.append(feedback.project)
 
-        context = {'project_list': res_list}
+        context = {'project_list': res_list, 'profile': user}
         return render(request, 'projects/sorted_project_list.html', context)
     else:
         print("You are not authorized to view this page")
