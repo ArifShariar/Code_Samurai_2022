@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>DPP Form</title>
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css'%}">
+    <link rel="stylesheet" href="{% static 'assets/css/Footer-Dark.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/Registration-Form-with-Photo.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
+
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-dark">
+    <a class="navbar-brand text-white" href="{% url 'home' %}">BUET Hoilei Hoilo</a>
+
+    {% if profile.user_type != "APP" %}
+        <a class="text-white" href="{% url 'sorted_list' %}">Sort By Rating</a>
+    {% endif %}
+
+    {% if profile.user_type == "EXEC" %}
+        <a class="text-white" href="{% url 'dpp_form' %}">New DPP</a>
+    {% endif %}
+
+    {% if profile.user_type == "MOP" or profile.user_type == "ECNEC" %}
+        <a class="text-white" href="{% url 'view_proposed_projects' %}">Proposed Projects</a>
+    {% endif %}
+
+
+    <form class="form-inline" method="post" action="{% url 'search_projects_results' %}">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="text" id="search-input" name="search-input" placeholder="Search Projects">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </form>
+    <a class="btn btn-outline-danger" href="{% url 'logout_user' %}">Log Out</a>
+</nav>
+
+
+<h1 class="text-lg-center">Successful</h1>
+
+
+<script src="{% static 'assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+</body>
+</html>

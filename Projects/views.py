@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
-from Projects.models import Project, Feedback
+from Projects.models import Project, Feedback, Prediction
 from Users.models import Profile
 from Components.models import Components
 from Constraints.models import Constraints
@@ -20,12 +20,9 @@ def show_project_list(request):
     return render(request, 'projects/show_project_list.html')
 
 
-
-
-
 def isclose(proposal, project):
     d = distance.distance((proposal.latitude, proposal.longitude), (project.latitude, project.longitude)).meters
-    return True
+    return d < 20
 
 
 def getExpectedDaysToFinish(project, start_date):
@@ -88,11 +85,14 @@ def simulate(proposal):
         expected_days_to_finish += dependent_count * project.timespan * 365 / total_component_count
         min_expected_days_to_finish = min(min_expected_days_to_finish, expected_days_to_finish)
 
+    if min_expected_days_to_finish == math.inf:
+        min_expected_days_to_finish = 0
     expected_start_date = date.today() + timedelta(days=min_expected_days_to_finish)
     print('expected_start_date = ' + str(expected_start_date))
     days_to_finish = getExpectedDaysToFinish(proposal, expected_start_date)
     expected_end_date = expected_start_date + timedelta(days=days_to_finish)
     print('expected_end_date = ' + str(expected_end_date))
+    return expected_start_date, expected_end_date
 
 
 @login_required(login_url='login_user')
@@ -147,9 +147,14 @@ def dpp_form(request):
             created_by=request.user,
         )
         project_object.save()
-        simulate(project_object)
+        expected_start_date, expected_end_date = simulate(project_object)
+        Prediction.objects.create(
+            project=project_object,
+            start_date=expected_start_date,
+            end_date=expected_end_date,
+        ).save()
 
-        return HttpResponse("OK")
+        return render(request, 'projects/dpp_successful.html', context)
     return render(request, 'projects/dpp_form.html', context)
 
 
@@ -377,6 +382,13 @@ def update_project_details(request, pk):
         if request.POST.get('actual_cost'):
             project_object.actual_cost = request.POST.get('actual_cost')
         project_object.save()
+        expected_start_date, expected_end_date = simulate(project_object)
+        Prediction.objects.create(
+            project=project_object,
+            start_date=expected_start_date,
+            end_date=expected_end_date,
+        ).save()
+
         print("saved")
         return redirect('own_projects')
     else:
@@ -399,3 +411,10 @@ def sort_by_rating(request):
     else:
         print("You are not authorized to view this page")
         return redirect('home')
+
+
+@login_required(login_url='login_user')
+def successful_dpp(request):
+    user = Profile.objects.get(user=request.user)
+    context = {'profile': user}
+    return render(request, 'projects/dpp_successful.html', context)
