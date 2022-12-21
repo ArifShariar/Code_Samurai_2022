@@ -8,8 +8,11 @@ from django.shortcuts import render, redirect
 
 
 from Projects.models import Project, Feedback
+from Constraints.models import Constraints
 
 from itertools import chain
+from datetime import date
+from geopy import distance
 
 # Create your views here.
 import csv
@@ -19,6 +22,37 @@ import json
 import datetime
 
 from Users.models import Profile
+
+
+def isclose(proposal, project):
+    d = distance.distance((proposal.latitude, proposal.longitude), (project.latitude, project.longitude)).meters
+    return d < 20
+
+
+def simulate(proposal):
+    projects = Project.objects.all().filter(is_proposal=True).order_by('start_date').values()
+    for project in projects:
+        if not isclose(proposal, project):
+            continue
+        
+        start_date = project.start_date
+        percent_completed = project.completion
+        days_passed = (date.today() - start_date).days
+        if days_passed <= 0 or percent_completed == 0:
+            continue
+
+        remaining_days = (100-percent_completed)*days_passed/percent_completed
+        exec_limit = Constraints.objects.all().filter(code=project.exec_by)
+        # for con in constraints:
+        #     match con.constraint_type:
+        #         case 'executing_agency_limit':
+        #             pass
+        #         case 'location_limit':
+        #             pass
+        #         case 'yearly_funding':
+        #             pass
+        #         case _:
+        #             pass
 
 
 def show_project_list(request):
@@ -74,6 +108,9 @@ def dpp_form(request):
             created_by=request.user,
         )
         project_object.save()
+
+        # simulate to predict this timeframe
+        simulate(project_object)
 
         return HttpResponse("OK")
     return render(request, 'projects/dpp_form.html')
