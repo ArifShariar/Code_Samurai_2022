@@ -1,13 +1,14 @@
+# Create your views here.
+import csv
+import random
+from itertools import chain
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-
-from django.shortcuts import render
-from django.core.files.base import ContentFile
-
 from django.shortcuts import render, redirect
 
-
 from Projects.models import Project, Feedback
+
 from Constraints.models import Constraints
 from Components.models import Components
 
@@ -21,6 +22,7 @@ import random
 import base64
 import json
 import math
+
 
 from Users.models import Profile
 
@@ -105,8 +107,9 @@ def show_project_list(request):
 def show_project_details(request, pk):
     project_object = Project.objects.get(pk=pk)
     feedbacks = Feedback.objects.filter(project=project_object)
-    print(feedbacks)
-    context = {'project_object': project_object, 'feedbacks': feedbacks}
+    profile = Profile.objects.get(user=request.user)
+    my_feedback = Feedback.objects.filter(project=project_object, created_by=request.user)
+    context = {'project_object': project_object, 'feedbacks': feedbacks, 'profile': profile, 'my_feedback': my_feedback}
     return render(request, 'projects/show_project_details.html', context)
 
 
@@ -167,29 +170,28 @@ def search_project_result(request):
         result2 = Project.objects.filter(location__contains=search_text)
         result_list = list(chain(result1, result2))
         lst_of_dick = []
-        
+
         for project in result_list:
             lst_of_dick.append({
-                'Project ID'    : project.project_id, 
-                'Name'          : project.name, 
-                'Location'      : project.location, 
-                'Exec'          : project.exec_by, 
-                'Latitude'      : project.latitude,
-                'Longitude'     : project.longitude,
-                'Cost'          : project.cost, 
-                'Timespan'      : project.timespan, 
-                'Goal'          : project.goal, 
-                'Start Date'    : project.start_date, 
-                'Completion'    : project.completion,
-                'Actual Cost'   : project.actual_cost, 
-                'Is Proposal'   : project.is_proposal, 
-                'Proposal Date' : project.proposal_date
+                'Project ID': project.project_id,
+                'Name': project.name,
+                'Location': project.location,
+                'Exec': project.exec_by,
+                'Latitude': project.latitude,
+                'Longitude': project.longitude,
+                'Cost': project.cost,
+                'Timespan': project.timespan,
+                'Goal': project.goal,
+                'Start Date': project.start_date,
+                'Completion': project.completion,
+                'Actual Cost': project.actual_cost,
+                'Is Proposal': project.is_proposal,
+                'Proposal Date': project.proposal_date
             })
 
         context = {'result_list': result_list}
         request.session['result_list'] = str(lst_of_dick)
         return render(request, 'projects/search_project_result.html', context)
-
 
 
 @login_required(login_url='login_user')
@@ -204,42 +206,41 @@ def download(request):
     )
     writer = csv.writer(response)
     writer.writerow([
-        'Project ID', 
-        'Name', 
-        'Location', 
-        'Exec', 
-        'Latitude', 
-        'Longitude', 
-        'Cost', 
-        'Timespan', 
+        'Project ID',
+        'Name',
+        'Location',
+        'Exec',
+        'Latitude',
+        'Longitude',
+        'Cost',
+        'Timespan',
         'Goal',
-        'Start Date', 
-        'Completion', 
-        'Actual Cost', 
-        'Is Proposal', 
+        'Start Date',
+        'Completion',
+        'Actual Cost',
+        'Is Proposal',
         'Proposal Date'
     ])
     for project in result_project_list:
         writer.writerow([
-            project['Project ID'], 
-            project['Name'], 
-            project['Location'], 
-            project['Exec'], 
+            project['Project ID'],
+            project['Name'],
+            project['Location'],
+            project['Exec'],
             project['Latitude'],
             project['Longitude'],
-            project['Cost'], 
-            project['Timespan'], 
-            project['Goal'], 
-            project['Start Date'], 
+            project['Cost'],
+            project['Timespan'],
+            project['Goal'],
+            project['Start Date'],
             project['Completion'],
-            project['Actual Cost'], 
-            project['Is Proposal'], 
+            project['Actual Cost'],
+            project['Is Proposal'],
             project['Proposal Date']
         ])
 
     del request.session['result_list']
     return response
-
 
 
 @login_required(login_url='login_user')
@@ -324,3 +325,82 @@ def reject_proposed_project(request, pk):
         print("You are not authorized to view this page")
         return redirect('home')
 
+
+@login_required(login_url='login_user')
+def own_projects(request):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        own_proposal_list = Project.objects.filter(created_by=request.user)
+        own_project_list = Project.objects.filter(created_by=request.user, is_proposal=False)
+        print(own_proposal_list)
+        print(own_project_list)
+        context = {'own_project_list': own_project_list, 'own_proposal_list': own_proposal_list}
+        return render(request, 'projects/show_project_list.html', context)
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def edit_project_details(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        return render(request, 'projects/edit_project_details.html', {'project_object': project_object})
+
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def update_project_details(request, pk):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type == "MOP" or user.user_type == "ECNEC":
+        project_object = Project.objects.get(pk=pk)
+        print(request.POST.get('location'))
+
+        if request.POST.get('name'):
+            project_object.name = request.POST.get('name')
+        if request.POST.get('location'):
+            project_object.location = request.POST.get('location')
+            print("changed location")
+        if request.POST.get('latitude'):
+            project_object.latitude = request.POST.get('latitude')
+        if request.POST.get('longitude'):
+            project_object.longitude = request.POST.get('longitude')
+        if request.POST.get('cost'):
+            project_object.cost = request.POST.get('cost')
+        if request.POST.get('timespan'):
+            project_object.timespan = request.POST.get('timespan')
+        if request.POST.get('goal'):
+            project_object.goal = request.POST.get('goal')
+        if request.POST.get('start_date'):
+            project_object.start_date = request.POST.get('start_date')
+        if request.POST.get('completion'):
+            project_object.completion = request.POST.get('completion')
+        if request.POST.get('actual_cost'):
+            project_object.actual_cost = request.POST.get('actual_cost')
+        project_object.save()
+        print("saved")
+        return redirect('own_projects')
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
+
+
+@login_required(login_url='login_user')
+def sort_by_rating(request):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type != "APP":
+        # sort using Feedback model
+        feedback_list = Feedback.objects.order_by('-rating')
+        res_list = []
+        for feedback in feedback_list:
+            res_list.append(feedback.project)
+
+        context = {'project_list': res_list}
+        return render(request, 'projects/sorted_project_list.html', context)
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')
