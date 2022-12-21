@@ -296,3 +296,20 @@ def update_project_details(request, pk):
     else:
         print("You are not authorized to view this page")
         return redirect('home')
+
+
+@login_required(login_url='login_user')
+def sort_by_rating(request):
+    user = Profile.objects.get(user=request.user)
+    if user.user_type != "APP":
+        # sort using Feedback model
+        feedback_list = Feedback.objects.order_by('-rating')
+        res_list = []
+        for feedback in feedback_list:
+            res_list.append(feedback.project)
+
+        context = {'project_list': res_list}
+        return render(request, 'projects/sorted_project_list.html', context)
+    else:
+        print("You are not authorized to view this page")
+        return redirect('home')

@@ -20,4 +20,6 @@ urlpatterns = [
     path('own_projects/', own_projects, name='own_projects'),
     path('edit_project_details/<int:pk>/', edit_project_details, name='edit_project_details'),
     path('update_project_details/<int:pk>/', update_project_details, name='update_project_details'),
+
+    path('sorted_list/', sort_by_rating, name='sorted_list'),
 ]
