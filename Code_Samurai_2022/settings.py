@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-eztnv#!v_0$p*%+l+(@5_$23@-%^!qu2m$^78y1tpp2$)a*gxl
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
