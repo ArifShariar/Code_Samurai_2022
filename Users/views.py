@@ -8,7 +8,6 @@ from Users.forms import UserForm, ProfileForm
 from Users.models import Profile
 
 
-# Create your views here.
 
 
 def default_home(request):

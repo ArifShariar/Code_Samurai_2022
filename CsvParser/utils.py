@@ -1,6 +1,9 @@
 import pandas
 
 
+from Projects.models import Project
+
+
 AGENCIES = './data/agencies.csv'
 COMPONENTS = './data/components.csv'
 CONSTRAINTS = './data/constraints.csv'
@@ -21,3 +24,8 @@ def parseCsv(filename):
         ret.append(dk)
     
     return ret
+
+
+def simulate():
+    projects = Project.objects.all().filter(is_proposal=False).order_by('start_date').values()
+    print(projects)

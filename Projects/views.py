@@ -66,6 +66,8 @@ def dpp_form(request):
         )
         project_object.save()
 
+        # make prediction about this proposals timeframe
+
         return HttpResponse("OK")
     return render(request, 'projects/dpp_form.html')
 
