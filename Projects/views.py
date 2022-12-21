@@ -9,9 +9,10 @@ from django.shortcuts import render, redirect
 
 from Projects.models import Project, Feedback
 from Constraints.models import Constraints
+from Components.models import Components
 
 from itertools import chain
-from datetime import date
+from datetime import date, datetime, timedelta
 from geopy import distance
 
 # Create your views here.
@@ -19,18 +20,45 @@ import csv
 import random
 import base64
 import json
-import datetime
+import math
 
 from Users.models import Profile
 
 
 def isclose(proposal, project):
     d = distance.distance((proposal.latitude, proposal.longitude), (project.latitude, project.longitude)).meters
-    return d < 20
+    return True
+
+
+def getExpectedDaysToFinish(project, start_date):
+    components = Components.objects.filter(project_id=project.project_id)
+    total_component_count = len(components)
+
+    remaining_days = float(project.timespan)*365
+    exec_limits = Constraints.objects.filter(code=project.exec_by, constraint_type='executing_agency_limit')
+    location_limits = Constraints.objects.filter(code=project.location, constraint_type='location_limit')
+    mn_exec = math.inf
+    mn_loc = math.inf
+    if exec_limits:
+        mn_exec = exec_limits.order_by('max_limit').first().max_limit
+    if location_limits:
+        mn_loc = location_limits.order_by('max_limit').first().max_limit
+    active_component_count = min(mn_exec, mn_loc, total_component_count) 
+    # if daily we could run total_component_count=n components, days to finish = remaining day
+    # if daily we could run active_component_count=m components, days to finish = remaining day/n * m
+    if total_component_count == 0:
+        return remaining_days
+
+    expected_days_to_finish = active_component_count*remaining_days/total_component_count
+    dependent_count = len(components.filter(depends_on__isnull=False))
+    expected_days_to_finish += dependent_count*project.timespan*365/total_component_count
+    return expected_days_to_finish
 
 
 def simulate(proposal):
-    projects = Project.objects.all().filter(is_proposal=True).order_by('start_date').values()
+    projects = Project.objects.all().filter(is_proposal=False).order_by('start_date')
+    min_expected_days_to_finish = math.inf
+    
     for project in projects:
         if not isclose(proposal, project):
             continue
@@ -41,18 +69,32 @@ def simulate(proposal):
         if days_passed <= 0 or percent_completed == 0:
             continue
 
+        components = Components.objects.filter(project_id=project.project_id)
+        total_component_count = len(components)
+
         remaining_days = (100-percent_completed)*days_passed/percent_completed
-        exec_limit = Constraints.objects.all().filter(code=project.exec_by)
-        # for con in constraints:
-        #     match con.constraint_type:
-        #         case 'executing_agency_limit':
-        #             pass
-        #         case 'location_limit':
-        #             pass
-        #         case 'yearly_funding':
-        #             pass
-        #         case _:
-        #             pass
+        exec_limits = Constraints.objects.filter(code=project.exec_by, constraint_type='executing_agency_limit')
+        location_limits = Constraints.objects.filter(code=project.location, constraint_type='location_limit')
+        mn_exec = math.inf
+        mn_loc = math.inf
+        if exec_limits:
+            mn_exec = exec_limits.order_by('max_limit').first().max_limit
+        if location_limits:
+            mn_loc = location_limits.order_by('max_limit').first().max_limit
+        active_component_count = min(mn_exec, mn_loc, total_component_count) 
+
+        # if daily we could run total_component_count=n components, days to finish = remaining day
+        # if daily we could run active_component_count=m components, days to finish = remaining day/n * m
+        expected_days_to_finish = active_component_count*remaining_days/total_component_count
+        dependent_count = len(components.filter(depends_on__isnull=False))
+        expected_days_to_finish += dependent_count*project.timespan*365/total_component_count
+        min_expected_days_to_finish = min(min_expected_days_to_finish, expected_days_to_finish)
+    
+    expected_start_date = date.today() + timedelta(days=min_expected_days_to_finish)
+    print('expected_start_date = ' + str(expected_start_date))
+    days_to_finish = getExpectedDaysToFinish(proposal, expected_start_date)
+    expected_end_date = expected_start_date + timedelta(days=days_to_finish) 
+    print('expected_end_date = ' + str(expected_end_date))
 
 
 def show_project_list(request):
