@@ -153,6 +153,8 @@ def dpp_form(request):
             start_date=expected_start_date,
             end_date=expected_end_date,
         ).save()
+        context['start_date'] = expected_start_date
+        context['end_date'] = expected_end_date
 
         return render(request, 'projects/dpp_successful.html', context)
     return render(request, 'projects/dpp_form.html', context)
@@ -328,8 +330,9 @@ def reject_proposed_project(request, pk):
 @login_required(login_url='login_user')
 def own_projects(request):
     user = Profile.objects.get(user=request.user)
-    if user.user_type == "MOP" or user.user_type == "ECNEC":
+    if user.user_type == "EXEC":
         own_proposal_list = Project.objects.filter(created_by=request.user)
+
         own_project_list = Project.objects.filter(created_by=request.user, is_proposal=False)
         print(own_proposal_list)
         print(own_project_list)
@@ -343,7 +346,7 @@ def own_projects(request):
 @login_required(login_url='login_user')
 def edit_project_details(request, pk):
     user = Profile.objects.get(user=request.user)
-    if user.user_type == "MOP" or user.user_type == "ECNEC":
+    if user.user_type == "EXEC":
         project_object = Project.objects.get(pk=pk)
         return render(request, 'projects/edit_project_details.html',
                       {'project_object': project_object, 'profile': user})
@@ -356,7 +359,7 @@ def edit_project_details(request, pk):
 @login_required(login_url='login_user')
 def update_project_details(request, pk):
     user = Profile.objects.get(user=request.user)
-    if user.user_type == "MOP" or user.user_type == "ECNEC":
+    if user.user_type == "EXEC":
         project_object = Project.objects.get(pk=pk)
         print(request.POST.get('location'))
 
