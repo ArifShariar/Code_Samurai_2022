@@ -3,6 +3,7 @@ from django.db import models
 from Users.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+
 # Create your models here.
 
 
@@ -36,3 +37,12 @@ class Feedback(models.Model):
 
     def __str__(self):
         return self.feedback
+
+
+class Prediction(models.Model):
+    project = models.ForeignKey(Project, related_name='projectFKey', on_delete=models.CASCADE)
+    start_date = models.DateField(null=True)
+    end_date = models.DateField(null=True)
+
+    def __str__(self):
+        return self.project.name + ' ' + str(self.start_date) + ' ' + str(self.end_date)

@@ -75,6 +75,7 @@
 
     {% if profile.user_type == "EXEC" %}
         <a class="text-white" href="{% url 'dpp_form' %}">New DPP</a>
+        <a class="text-white" href="{% url 'own_projects' %}">My Projects</a>
     {% endif %}
 
     {% if profile.user_type == "MOP" or profile.user_type == "ECNEC" %}
